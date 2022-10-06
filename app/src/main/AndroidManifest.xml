@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UberLikeApp">
         <activity
+            android:name=".view.LoginActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.SignUpActivity"
             android:exported="false" />
         <activity
