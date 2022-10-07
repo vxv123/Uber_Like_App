@@ -153,6 +153,7 @@
         android:layout_height="wrap_content">
 
         <CheckBox
+            android:id="@+id/employee_checkbox_in_signup"
             android:minWidth="0dp"
             android:minHeight="0dp"
             android:layout_width="wrap_content"
@@ -169,6 +170,7 @@
             >
         </TextView>
         <CheckBox
+            android:id="@+id/customer_checkbox_in_signup"
             android:layout_marginStart="15dp"
             android:minWidth="0dp"
             android:minHeight="0dp"
@@ -188,7 +190,7 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/next_step_in_signUp"
+        android:id="@+id/submit_in_signup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
