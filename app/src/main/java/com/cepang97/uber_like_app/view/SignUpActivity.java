@@ -1,5 +1,6 @@
 package com.cepang97.uber_like_app.view;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -7,18 +8,21 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.cepang97.uber_like_app.R;
-import com.cepang97.uber_like_app.controller.SignupHandler;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class SignUpActivity extends AppCompatActivity {
     EditText email_address, username, password, confirm_password;
     Button submit;
     CheckBox employee, customer;
-    SignupHandler handler = new SignupHandler();
+    public FirebaseAuth mAuth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +34,7 @@ public class SignUpActivity extends AppCompatActivity {
         submit = findViewById(R.id.submit_in_signup);
         employee = findViewById(R.id.employee_checkbox_in_signup);
         customer = findViewById(R.id.customer_checkbox_in_signup);
+        mAuth = FirebaseAuth.getInstance();
 
 
         only_one_checkbox_checked(customer, employee);
@@ -43,8 +48,11 @@ public class SignUpActivity extends AppCompatActivity {
                     String username_str = username.getText().toString();
                     String pwd_str = password.getText().toString();
                     String confirm_pwd_str = confirm_password.getText().toString();
-                    handler.create_account(email_addr_str, pwd_str);
 
+                    //Create An account by Using Google Firebase Auth
+                    create_account(email_addr_str, pwd_str);
+
+                    //Store Data Into Firebase Database.
                 }
             }
         });
@@ -118,5 +126,20 @@ public class SignUpActivity extends AppCompatActivity {
                     }
                 }
         );
+    }
+
+    public void create_account(String email_address, String password){
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.createUserWithEmailAndPassword(email_address, password).addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                Toast.makeText(SignUpActivity.this, "Successfully created an account!", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(SignUpActivity.this, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(SignUpActivity.this, "Fail to create an account! Due to " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
