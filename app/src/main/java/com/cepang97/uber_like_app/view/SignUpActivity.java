@@ -1,28 +1,35 @@
 package com.cepang97.uber_like_app.view;
 
-import androidx.annotation.NonNull;
+
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.amplifyframework.auth.AuthUserAttributeKey;
+import com.amplifyframework.auth.options.AuthSignUpOptions;
+import com.amplifyframework.core.Amplify;
 import com.cepang97.uber_like_app.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
+
 import com.google.firebase.auth.FirebaseAuth;
 
 public class SignUpActivity extends AppCompatActivity {
     EditText email_address, username, password, confirm_password;
     Button submit;
     CheckBox employee, customer;
-    public FirebaseAuth mAuth;
+
+    static boolean verification_result = false;
+    String email_address_str;
+    String username_str;
+    String pwd_str;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,9 +41,9 @@ public class SignUpActivity extends AppCompatActivity {
         submit = findViewById(R.id.submit_in_signup);
         employee = findViewById(R.id.employee_checkbox_in_signup);
         customer = findViewById(R.id.customer_checkbox_in_signup);
-        mAuth = FirebaseAuth.getInstance();
 
 
+        //Only make user click employee's click box or customer's click box
         only_one_checkbox_checked(customer, employee);
 
 
@@ -44,18 +51,31 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(blank_content_checking(email_address, username, password, confirm_password, customer, employee)){
-                    String email_addr_str = email_address.getText().toString();
-                    String username_str = username.getText().toString();
-                    String pwd_str = password.getText().toString();
-                    String confirm_pwd_str = confirm_password.getText().toString();
+                    email_address_str = email_address.getText().toString();
+                    username_str = username.getText().toString();
+                    pwd_str = password.getText().toString();
+
 
                     //Create An account by Using Google Firebase Auth
-                    create_account(email_addr_str, pwd_str);
-
+                    create_account(email_address_str, username_str, pwd_str);
+                    Intent intent = new Intent(SignUpActivity.this, ConfirmSignUpActivity.class);
+                    startActivity(intent);
+                    finish();
                     //Store Data Into Firebase Database.
                 }
             }
         });
+
+        //Verify new account, getting verification code from confirm sign up activity.
+        Intent intent = new Intent();
+        String code = intent.getStringExtra("Verification_Code");
+        boolean verification = verify_account(username_str, code);
+        if(verification){
+            //Need further implementation.
+        }
+        else{
+            Toast.makeText(SignUpActivity.this, "Cannot create a new account based on the current info", Toast.LENGTH_SHORT).show();
+        }
 
     }
 
@@ -128,18 +148,36 @@ public class SignUpActivity extends AppCompatActivity {
         );
     }
 
-    public void create_account(String email_address, String password){
-        mAuth = FirebaseAuth.getInstance();
-        mAuth.createUserWithEmailAndPassword(email_address, password).addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                Toast.makeText(SignUpActivity.this, "Successfully created an account!", Toast.LENGTH_SHORT).show();
-            }
-        }).addOnFailureListener(SignUpActivity.this, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(SignUpActivity.this, "Fail to create an account! Due to " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+    /**
+     * Using google firebase auth to sign up a new account
+     * @param email_address email address as string
+     * @param password password as string
+     */
+    public void create_account(String email_address, String username, String password){
+        AuthSignUpOptions options = AuthSignUpOptions.builder()
+                .userAttribute(AuthUserAttributeKey.email(), email_address)
+                .build();
+        Amplify.Auth.signUp(username, password, options,
+                result -> Log.i("AuthQuickStart", "Result: " + result.toString()),
+                error -> Log.e("AuthQuickStart", "Sign up failed", error)
+        );
     }
+
+    /**
+     * Verify New Account By using Amplify
+     * @param username
+     * @param code
+     * @return true if the account can be created, otherwise return false.
+     */
+    public boolean verify_account(String username, String code){
+        Amplify.Auth.confirmSignUp(
+                username,
+                code,
+                result ->  verification_result = result.isSignUpComplete() ? true : false,
+                error -> Log.e("AuthQuickstart", error.toString())
+        );
+        return verification_result;
+    }
+
+
 }
