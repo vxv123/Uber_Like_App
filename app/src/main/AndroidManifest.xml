@@ -11,10 +11,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UberLikeApp">
         <activity
+            android:name=".view.GeneralLoginActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.ConfirmSignUpActivity"
             android:exported="false" />
         <activity
-            android:name=".view.LoginActivity"
+            android:name=".view.customer.CustomerLoginActivity"
             android:exported="false" />
         <activity
             android:name=".view.SignUpActivity"
@@ -27,7 +30,7 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
     </application>
 
 </manifest>

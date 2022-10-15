@@ -1,0 +1,127 @@
+# this is an auto generated file. This will be overwritten
+subscription OnCreateUser {
+  onCreateUser {
+    id
+    email_address
+    username
+    password
+    user_type
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    owner
+  }
+}
+subscription OnUpdateUser {
+  onUpdateUser {
+    id
+    email_address
+    username
+    password
+    user_type
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    owner
+  }
+}
+subscription OnDeleteUser {
+  onDeleteUser {
+    id
+    email_address
+    username
+    password
+    user_type
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    owner
+  }
+}
+subscription OnCreateLocation {
+  onCreateLocation {
+    user {
+      id
+      email_address
+      username
+      password
+      user_type
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+      owner
+    }
+    time
+    latitude
+    longitude
+    id
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    owner
+  }
+}
+subscription OnUpdateLocation {
+  onUpdateLocation {
+    user {
+      id
+      email_address
+      username
+      password
+      user_type
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+      owner
+    }
+    time
+    latitude
+    longitude
+    id
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    owner
+  }
+}
+subscription OnDeleteLocation {
+  onDeleteLocation {
+    user {
+      id
+      email_address
+      username
+      password
+      user_type
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+      owner
+    }
+    time
+    latitude
+    longitude
+    id
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    owner
+  }
+}

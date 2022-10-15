@@ -56,12 +56,12 @@ public class SignUpActivity extends AppCompatActivity {
                     pwd_str = password.getText().toString();
 
 
-                    //Create An account by Using Google Firebase Auth
+                    //Create An account by Using AWS
                     create_account(email_address_str, username_str, pwd_str);
                     Intent intent = new Intent(SignUpActivity.this, ConfirmSignUpActivity.class);
                     startActivity(intent);
                     finish();
-                    //Store Data Into Firebase Database.
+
                 }
             }
         });
@@ -72,6 +72,8 @@ public class SignUpActivity extends AppCompatActivity {
         boolean verification = verify_account(username_str, code);
         if(verification){
             //Need further implementation.
+            //Store data into database.
+
         }
         else{
             Toast.makeText(SignUpActivity.this, "Cannot create a new account based on the current info", Toast.LENGTH_SHORT).show();
@@ -94,15 +96,18 @@ public class SignUpActivity extends AppCompatActivity {
             Toast.makeText(SignUpActivity.this, "Email Address Cannot Be Empty!", Toast.LENGTH_SHORT).show();
             return false;
         }
-        else if(TextUtils.isEmpty(username.getText())){
+
+        if(TextUtils.isEmpty(username.getText())){
             Toast.makeText(SignUpActivity.this, "Username Cannot Be Empty!",  Toast.LENGTH_SHORT).show();
             return false;
         }
-        else if(TextUtils.isEmpty(password.getText())){
+
+        if(TextUtils.isEmpty(password.getText())){
             Toast.makeText(SignUpActivity.this, "Password Cannot Be Empty!", Toast.LENGTH_SHORT).show();
             return false;
         }
-        else if(TextUtils.isEmpty(confirm_password.getText())){
+
+        if(TextUtils.isEmpty(confirm_password.getText())){
             Toast.makeText(SignUpActivity.this, "Confirm Password Cannot Be Empty!", Toast.LENGTH_SHORT).show();
             return false;
         }
