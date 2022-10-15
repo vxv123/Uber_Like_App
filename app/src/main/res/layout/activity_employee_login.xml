@@ -4,6 +4,75 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.employee.EmployeeLoginActivity">
+    tools:context=".view.customer.CustomerLoginActivity">
+
+    <TextView
+        android:id="@+id/tv_in_employee_login"
+        android:text="Employee Login"
+        android:textSize="45dp"
+        android:textStyle="bold"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/ll_in_employee_login"
+        >
+    </TextView>
+
+
+    <LinearLayout
+        android:id="@+id/ll_in_employee_login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        >
+
+        <EditText
+            android:inputType="textEmailAddress"
+            android:maxLines="1"
+            android:imeOptions="actionNext"
+            android:id="@+id/username_in_employee_login"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="15dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="15dp"
+            android:hint="Username"
+            android:textSize="25dp"/>
+
+        <EditText
+            android:layout_marginTop="20dp"
+            android:inputType="textPassword"
+            android:maxLines="1"
+            android:imeOptions="actionDone"
+            android:id="@+id/password_in_employee_login"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="15dp"
+            android:hint="Password"
+            android:textSize="25dp"/>
+
+        <Button
+            android:layout_marginTop="20dp"
+            android:id="@+id/btn_in_employee_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:background="#F98426"
+            android:text="Login"
+            android:textColor="@color/white"
+            />
+    </LinearLayout>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
