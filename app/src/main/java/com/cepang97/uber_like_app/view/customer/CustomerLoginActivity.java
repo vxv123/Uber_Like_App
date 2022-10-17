@@ -2,6 +2,7 @@ package com.cepang97.uber_like_app.view.customer;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -42,10 +43,13 @@ public class CustomerLoginActivity extends AppCompatActivity {
             }
 
             private void onLoginError(AuthException e) {
+                Toast.makeText(CustomerLoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
             private void onLoginSuccess(AuthSignInResult authSignInResult) {
-
+                Intent intent = new Intent(CustomerLoginActivity.this, CustomerMainActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
     }

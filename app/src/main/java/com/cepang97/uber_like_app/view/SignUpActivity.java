@@ -13,8 +13,10 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.amplifyframework.auth.AuthException;
 import com.amplifyframework.auth.AuthUserAttributeKey;
 import com.amplifyframework.auth.options.AuthSignUpOptions;
+import com.amplifyframework.auth.result.AuthSignUpResult;
 import com.amplifyframework.core.Amplify;
 import com.cepang97.uber_like_app.R;
 
@@ -23,7 +25,7 @@ import com.google.firebase.auth.FirebaseAuth;
 public class SignUpActivity extends AppCompatActivity {
     EditText email_address, username, password, confirm_password;
     Button submit;
-    CheckBox employee, customer;
+    CheckBox employee_cb, customer_cb;
 
     static boolean verification_result = false;
     String email_address_str;
@@ -39,18 +41,18 @@ public class SignUpActivity extends AppCompatActivity {
         password = findViewById(R.id.password_in_signup);
         confirm_password = findViewById(R.id.confirm_password_in_signup);
         submit = findViewById(R.id.submit_in_signup);
-        employee = findViewById(R.id.employee_checkbox_in_signup);
-        customer = findViewById(R.id.customer_checkbox_in_signup);
+        employee_cb = findViewById(R.id.employee_checkbox_in_signup);
+        customer_cb = findViewById(R.id.customer_checkbox_in_signup);
 
 
         //Only make user click employee's click box or customer's click box
-        only_one_checkbox_checked(customer, employee);
+        only_one_checkbox_checked(customer_cb, employee_cb);
 
 
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(blank_content_checking(email_address, username, password, confirm_password, customer, employee)){
+                if(blank_content_checking(email_address, username, password, confirm_password, customer_cb, employee_cb)){
                     email_address_str = email_address.getText().toString();
                     username_str = username.getText().toString();
                     pwd_str = password.getText().toString();
@@ -58,27 +60,10 @@ public class SignUpActivity extends AppCompatActivity {
 
                     //Create An account by Using AWS
                     create_account(email_address_str, username_str, pwd_str);
-                    Intent intent = new Intent(SignUpActivity.this, ConfirmSignUpActivity.class);
-                    startActivity(intent);
-                    finish();
 
                 }
             }
         });
-
-        //Verify new account, getting verification code from confirm sign up activity.
-        Intent intent = new Intent();
-        String code = intent.getStringExtra("Verification_Code");
-        boolean verification = verify_account(username_str, code);
-        if(verification){
-            //Need further implementation.
-            //Store data into database.
-
-        }
-        else{
-            Toast.makeText(SignUpActivity.this, "Cannot create a new account based on the current info", Toast.LENGTH_SHORT).show();
-        }
-
     }
 
     /**
@@ -153,6 +138,18 @@ public class SignUpActivity extends AppCompatActivity {
         );
     }
 
+    public String get_checkbox_result(CheckBox customer, CheckBox employee){
+        if(customer.isChecked()){
+            return "customer";
+        }
+
+        if(employee.isChecked()){
+            return "employee";
+        }
+
+        return "customer";
+    }
+
     /**
      * Using google firebase auth to sign up a new account
      * @param email_address email address as string
@@ -163,26 +160,27 @@ public class SignUpActivity extends AppCompatActivity {
                 .userAttribute(AuthUserAttributeKey.email(), email_address)
                 .build();
         Amplify.Auth.signUp(username, password, options,
-                result -> Log.i("AuthQuickStart", "Result: " + result.toString()),
-                error -> Log.e("AuthQuickStart", "Sign up failed", error)
+                this::onSuccess,
+                this::onFail
         );
     }
 
-    /**
-     * Verify New Account By using Amplify
-     * @param username
-     * @param code
-     * @return true if the account can be created, otherwise return false.
-     */
-    public boolean verify_account(String username, String code){
-        Amplify.Auth.confirmSignUp(
-                username,
-                code,
-                result ->  verification_result = result.isSignUpComplete() ? true : false,
-                error -> Log.e("AuthQuickstart", error.toString())
-        );
-        return verification_result;
+    private void onFail(AuthException e) {
+        Toast.makeText(SignUpActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+
     }
 
-
+    private void onSuccess(AuthSignUpResult authSignUpResult) {
+        Intent intent = new Intent(SignUpActivity.this, ConfirmSignUpActivity.class);
+        String user_type = get_checkbox_result(customer_cb, employee_cb);
+        String email_address_str = email_address.getText().toString();
+        String username_str = username.getText().toString();
+        String password_str =  password.getText().toString();
+        intent.putExtra("email_address", email_address_str);
+        intent.putExtra("user_type", user_type);
+        intent.putExtra("password", password_str);
+        intent.putExtra("username", username_str);
+        startActivity(intent);
+        finish();
+    }
 }

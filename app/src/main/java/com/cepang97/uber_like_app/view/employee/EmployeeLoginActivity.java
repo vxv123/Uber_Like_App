@@ -2,6 +2,7 @@ package com.cepang97.uber_like_app.view.employee;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -14,6 +15,7 @@ import com.amplifyframework.auth.result.AuthSignInResult;
 import com.amplifyframework.core.Amplify;
 import com.cepang97.uber_like_app.R;
 import com.cepang97.uber_like_app.view.customer.CustomerLoginActivity;
+import com.cepang97.uber_like_app.view.customer.CustomerMainActivity;
 
 public class EmployeeLoginActivity extends AppCompatActivity {
     EditText username;
@@ -37,7 +39,6 @@ public class EmployeeLoginActivity extends AppCompatActivity {
                             password.getText().toString(),
                             this::onLoginSuccess,
                             this::onLoginError
-
                     );
                 }
 
@@ -45,11 +46,13 @@ public class EmployeeLoginActivity extends AppCompatActivity {
             }
 
             private void onLoginError(AuthException e) {
-
+                Toast.makeText(EmployeeLoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
             private void onLoginSuccess(AuthSignInResult authSignInResult) {
-
+                Intent intent = new Intent(EmployeeLoginActivity.this, EmployeeMainActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
     }

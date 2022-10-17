@@ -11,6 +11,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UberLikeApp">
         <activity
+            android:name=".view.employee.EmployeeMainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.customer.CustomerMainActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.GeneralLoginActivity"
             android:exported="false" />
         <activity
