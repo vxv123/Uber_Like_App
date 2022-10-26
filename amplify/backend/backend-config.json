@@ -1,37 +1,5 @@
 {
-  "api": {
-    "uberlikeapp": {
-      "service": "AppSync",
-      "providerPlugin": "awscloudformation",
-      "dependsOn": [
-        {
-          "category": "auth",
-          "resourceName": "uberlikeappb332906f",
-          "attributes": [
-            "UserPoolId"
-          ]
-        }
-      ],
-      "output": {
-        "authConfig": {
-          "defaultAuthentication": {
-            "authenticationType": "API_KEY",
-            "apiKeyConfig": {
-              "apiKeyExpirationDays": 7
-            }
-          },
-          "additionalAuthenticationProviders": [
-            {
-              "authenticationType": "AMAZON_COGNITO_USER_POOLS",
-              "userPoolConfig": {
-                "userPoolId": "authuberlikeappb332906f"
-              }
-            }
-          ]
-        }
-      }
-    }
-  },
+  "api": {},
   "auth": {
     "uberlikeappb332906f": {
       "service": "Cognito",

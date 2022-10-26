@@ -20,14 +20,12 @@ import com.amplifyframework.auth.result.AuthSignUpResult;
 import com.amplifyframework.core.Amplify;
 import com.cepang97.uber_like_app.R;
 
-import com.google.firebase.auth.FirebaseAuth;
 
 public class SignUpActivity extends AppCompatActivity {
     EditText email_address, username, password, confirm_password;
     Button submit;
     CheckBox employee_cb, customer_cb;
 
-    static boolean verification_result = false;
     String email_address_str;
     String username_str;
     String pwd_str;

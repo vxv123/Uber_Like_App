@@ -29,12 +29,10 @@ public final class User implements Model {
   public static final QueryField EMAIL_ADDRESS = field("User", "email_address");
   public static final QueryField USERNAME = field("User", "username");
   public static final QueryField PASSWORD = field("User", "password");
-  public static final QueryField USER_TYPE = field("User", "user_type");
   private final @ModelField(targetType="ID", isRequired = true) String id;
   private final @ModelField(targetType="AWSEmail", isRequired = true) String email_address;
   private final @ModelField(targetType="String", isRequired = true) String username;
   private final @ModelField(targetType="String", isRequired = true) String password;
-  private final @ModelField(targetType="String", isRequired = true) String user_type;
   private @ModelField(targetType="AWSDateTime", isReadOnly = true) Temporal.DateTime createdAt;
   private @ModelField(targetType="AWSDateTime", isReadOnly = true) Temporal.DateTime updatedAt;
   public String getId() {
@@ -53,10 +51,6 @@ public final class User implements Model {
       return password;
   }
   
-  public String getUserType() {
-      return user_type;
-  }
-  
   public Temporal.DateTime getCreatedAt() {
       return createdAt;
   }
@@ -65,12 +59,11 @@ public final class User implements Model {
       return updatedAt;
   }
   
-  private User(String id, String email_address, String username, String password, String user_type) {
+  private User(String id, String email_address, String username, String password) {
     this.id = id;
     this.email_address = email_address;
     this.username = username;
     this.password = password;
-    this.user_type = user_type;
   }
   
   @Override
@@ -85,7 +78,6 @@ public final class User implements Model {
               ObjectsCompat.equals(getEmailAddress(), user.getEmailAddress()) &&
               ObjectsCompat.equals(getUsername(), user.getUsername()) &&
               ObjectsCompat.equals(getPassword(), user.getPassword()) &&
-              ObjectsCompat.equals(getUserType(), user.getUserType()) &&
               ObjectsCompat.equals(getCreatedAt(), user.getCreatedAt()) &&
               ObjectsCompat.equals(getUpdatedAt(), user.getUpdatedAt());
       }
@@ -98,7 +90,6 @@ public final class User implements Model {
       .append(getEmailAddress())
       .append(getUsername())
       .append(getPassword())
-      .append(getUserType())
       .append(getCreatedAt())
       .append(getUpdatedAt())
       .toString()
@@ -113,7 +104,6 @@ public final class User implements Model {
       .append("email_address=" + String.valueOf(getEmailAddress()) + ", ")
       .append("username=" + String.valueOf(getUsername()) + ", ")
       .append("password=" + String.valueOf(getPassword()) + ", ")
-      .append("user_type=" + String.valueOf(getUserType()) + ", ")
       .append("createdAt=" + String.valueOf(getCreatedAt()) + ", ")
       .append("updatedAt=" + String.valueOf(getUpdatedAt()))
       .append("}")
@@ -137,7 +127,6 @@ public final class User implements Model {
       id,
       null,
       null,
-      null,
       null
     );
   }
@@ -146,8 +135,7 @@ public final class User implements Model {
     return new CopyOfBuilder(id,
       email_address,
       username,
-      password,
-      user_type);
+      password);
   }
   public interface EmailAddressStep {
     UsernameStep emailAddress(String emailAddress);
@@ -160,12 +148,7 @@ public final class User implements Model {
   
 
   public interface PasswordStep {
-    UserTypeStep password(String password);
-  }
-  
-
-  public interface UserTypeStep {
-    BuildStep userType(String userType);
+    BuildStep password(String password);
   }
   
 
@@ -175,12 +158,11 @@ public final class User implements Model {
   }
   
 
-  public static class Builder implements EmailAddressStep, UsernameStep, PasswordStep, UserTypeStep, BuildStep {
+  public static class Builder implements EmailAddressStep, UsernameStep, PasswordStep, BuildStep {
     private String id;
     private String email_address;
     private String username;
     private String password;
-    private String user_type;
     @Override
      public User build() {
         String id = this.id != null ? this.id : UUID.randomUUID().toString();
@@ -189,8 +171,7 @@ public final class User implements Model {
           id,
           email_address,
           username,
-          password,
-          user_type);
+          password);
     }
     
     @Override
@@ -208,16 +189,9 @@ public final class User implements Model {
     }
     
     @Override
-     public UserTypeStep password(String password) {
+     public BuildStep password(String password) {
         Objects.requireNonNull(password);
         this.password = password;
-        return this;
-    }
-    
-    @Override
-     public BuildStep userType(String userType) {
-        Objects.requireNonNull(userType);
-        this.user_type = userType;
         return this;
     }
     
@@ -233,12 +207,11 @@ public final class User implements Model {
   
 
   public final class CopyOfBuilder extends Builder {
-    private CopyOfBuilder(String id, String emailAddress, String username, String password, String userType) {
+    private CopyOfBuilder(String id, String emailAddress, String username, String password) {
       super.id(id);
       super.emailAddress(emailAddress)
         .username(username)
-        .password(password)
-        .userType(userType);
+        .password(password);
     }
     
     @Override
@@ -254,11 +227,6 @@ public final class User implements Model {
     @Override
      public CopyOfBuilder password(String password) {
       return (CopyOfBuilder) super.password(password);
-    }
-    
-    @Override
-     public CopyOfBuilder userType(String userType) {
-      return (CopyOfBuilder) super.userType(userType);
     }
   }
   
