@@ -7,7 +7,6 @@
     tools:context=".view.customer.CustomerLoginActivity">
 
     <TextView
-        android:id="@+id/tv_in_login"
         android:text="Customer Login"
         android:textSize="45dp"
         android:textStyle="bold"

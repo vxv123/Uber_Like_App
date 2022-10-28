@@ -1,6 +1,9 @@
 package com.cepang97.uber_like_app.view;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,7 +15,18 @@ import com.amplifyframework.auth.result.AuthSignInResult;
 import com.amplifyframework.auth.result.AuthSignUpResult;
 import com.amplifyframework.core.Amplify;
 import com.cepang97.uber_like_app.R;
+import com.cepang97.uber_like_app.view.customer.CustomerLoginActivity;
+import com.cepang97.uber_like_app.view.customer.CustomerMainActivity;
 
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import okhttp3.WebSocket;
 
 /**
@@ -26,17 +40,23 @@ public class ConfirmSignUpActivity extends AppCompatActivity  implements View.On
     String username;
     String password;
     String email_address;
+    String userId;
     WebSocket ws;
+    OkHttpClient client;
+    static String url = "https://yii4rgbzte.execute-api.us-west-2.amazonaws.com/production";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_confirm_sign_up);
+        //Initialize Components and clients
         submit = findViewById(R.id.submit_in_confirm_signup);
         confirmed_code = findViewById(R.id.confirmed_code_in_confirm_signup);
         username = getIntent().getStringExtra("username");
         password = getIntent().getStringExtra("password");
         email_address = getIntent().getStringExtra("email_address");
+        userId = Amplify.Auth.getCurrentUser().getUserId();
+        client = new OkHttpClient();
         submit.setOnClickListener(this);
     }
 
@@ -61,9 +81,33 @@ public class ConfirmSignUpActivity extends AppCompatActivity  implements View.On
         Amplify.Auth.signIn(username, password, this::onLoginSuccess, this::onFail);
     }
 
-    //Store data into DataBase and jump to corresponding page.
+    //Store data into DynamoDB and then jump to corresponding page.
+    //POST
     private void onLoginSuccess(AuthSignInResult authSignInResult) {
-        String userId = Amplify.Auth.getCurrentUser().getUserId();
+        RequestBody formBody = new FormBody.Builder()
+                .add("email", email_address)
+                .add("username", username)
+                .add("userId", userId)
+                .add("password", password)
+                .build();
+
+        Request request = new Request.Builder().url(url + "/users").post(formBody).build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if(response.isSuccessful()){
+                    Intent intent = new Intent(ConfirmSignUpActivity.this, CustomerMainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        });
 
     }
 

@@ -33,35 +33,6 @@
           ]
         }
       }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:657992128175:android:259f8f60e74e353fc6e65a",
-        "android_client_info": {
-          "package_name": "com.pangce97.uber_like_app"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "657992128175-d703cnavf8is64v62f72egvppsj8pq88.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBVlo7GWD3chc-AwL90m-RZZAo5eOxbuCs"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "657992128175-d703cnavf8is64v62f72egvppsj8pq88.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
     }
   ],
   "configuration_version": "1"

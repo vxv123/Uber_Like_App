@@ -1,7 +1,11 @@
 package com.cepang97.uber_like_app.view;
 
 
+import static android.content.ContentValues.TAG;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,12 +17,23 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.amplifyframework.auth.AuthException;
-import com.amplifyframework.auth.AuthUserAttributeKey;
-import com.amplifyframework.auth.options.AuthSignUpOptions;
-import com.amplifyframework.auth.result.AuthSignUpResult;
-import com.amplifyframework.core.Amplify;
 import com.cepang97.uber_like_app.R;
+import com.cepang97.uber_like_app.view.customer.CustomerMainActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 
 public class SignUpActivity extends AppCompatActivity {
@@ -29,6 +44,10 @@ public class SignUpActivity extends AppCompatActivity {
     String email_address_str;
     String username_str;
     String pwd_str;
+
+    private FirebaseAuth mAuth;
+    OkHttpClient client;
+    static String url = "https://yii4rgbzte.execute-api.us-west-2.amazonaws.com/production";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +60,9 @@ public class SignUpActivity extends AppCompatActivity {
         submit = findViewById(R.id.submit_in_signup);
         employee_cb = findViewById(R.id.employee_checkbox_in_signup);
         customer_cb = findViewById(R.id.customer_checkbox_in_signup);
-
+        //Initialize FirebaseAuth.
+        mAuth = FirebaseAuth.getInstance();
+        client = new OkHttpClient();
 
         //Only make user click employee's click box or customer's click box
         only_one_checkbox_checked(customer_cb, employee_cb);
@@ -150,35 +171,55 @@ public class SignUpActivity extends AppCompatActivity {
 
     /**
      * Using google firebase auth to sign up a new account
-     * @param email_address email address as string
+     * @param email email address as string
      * @param password password as string
      */
-    public void create_account(String email_address, String username, String password){
-        AuthSignUpOptions options = AuthSignUpOptions.builder()
-                .userAttribute(AuthUserAttributeKey.email(), email_address)
-                .build();
-        Amplify.Auth.signUp(username, password, options,
-                this::onSuccess,
-                this::onFail
-        );
-    }
+    public void create_account(String email, String username, String password){
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Toast.makeText(SignUpActivity.this, "createUserWithEmail:success", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "createUserWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            String userId = user.getUid();
 
-    private void onFail(AuthException e) {
-        Toast.makeText(SignUpActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            RequestBody formBody = new FormBody.Builder()
+                                    .add("email", email)
+                                    .add("username", username)
+                                    .add("userId", userId)
+                                    .add("password", password)
+                                    .build();
 
-    }
+                            Request request = new Request.Builder().url(url + "/users").post(formBody).build();
 
-    private void onSuccess(AuthSignUpResult authSignUpResult) {
-        Intent intent = new Intent(SignUpActivity.this, ConfirmSignUpActivity.class);
-        String user_type = get_checkbox_result(customer_cb, employee_cb);
-        String email_address_str = email_address.getText().toString();
-        String username_str = username.getText().toString();
-        String password_str =  password.getText().toString();
-        intent.putExtra("email_address", email_address_str);
-        intent.putExtra("user_type", user_type);
-        intent.putExtra("password", password_str);
-        intent.putExtra("username", username_str);
-        startActivity(intent);
-        finish();
+                            client.newCall(request).enqueue(new Callback() {
+                                @Override
+                                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                                    Log.e("Hehe", e.getMessage());
+                                }
+
+                                @Override
+                                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                    if(response.isSuccessful()){
+                                        Intent intent = new Intent(SignUpActivity.this, CustomerMainActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                }
+                            });
+
+
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                            Toast.makeText(SignUpActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+
+                        }
+                    }
+                });
     }
 }
