@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.apigateway.ApiClientFactory;
+import com.amazonaws.mobileconnectors.apigateway.ApiRequest;
 import com.cepang97.uber_like_app.R;
 import com.cepang97.uber_like_app.model.User;
 import com.cepang97.uberlikeapp.UberLikeAppClient;
@@ -185,7 +186,8 @@ public class SignUpActivity extends AppCompatActivity {
                             FirebaseUser user = mAuth.getCurrentUser();
                             String userId = user.getUid();
 
-
+                            //If the account is created successfully, store user data into AWS dynamoDB
+                            store_user(userId, email, password, username);
 
 
                         } else {
@@ -216,6 +218,9 @@ public class SignUpActivity extends AppCompatActivity {
                     body.setUsername(username);
 
                     Result output = client.usersPost(body);
+
+                    Log.d("SignUpActivity", output.toString());
+                    output.getOutput();
 
                 } catch (InterruptedException e) {
                     e.printStackTrace();
