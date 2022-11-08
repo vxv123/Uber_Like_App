@@ -15,7 +15,7 @@ import com.amplifyframework.auth.result.AuthSignInResult;
 import com.amplifyframework.auth.result.AuthSignUpResult;
 import com.amplifyframework.core.Amplify;
 import com.cepang97.uber_like_app.R;
-import com.cepang97.uber_like_app.view.customer.CustomerLoginActivity;
+
 import com.cepang97.uber_like_app.view.customer.CustomerMainActivity;
 
 import java.io.IOException;
@@ -28,6 +28,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.WebSocket;
+
 
 /**
  * Confirm Account Sign Up Successfully first
@@ -56,6 +57,7 @@ public class ConfirmSignUpActivity extends AppCompatActivity  implements View.On
         password = getIntent().getStringExtra("password");
         email_address = getIntent().getStringExtra("email_address");
         userId = Amplify.Auth.getCurrentUser().getUserId();
+       
         client = new OkHttpClient();
         submit.setOnClickListener(this);
     }

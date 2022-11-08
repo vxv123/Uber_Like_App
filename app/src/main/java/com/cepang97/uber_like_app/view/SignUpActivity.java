@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 
 import android.content.Intent;
+import android.icu.util.Output;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -17,23 +18,20 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.amazonaws.mobileconnectors.apigateway.ApiClientFactory;
 import com.cepang97.uber_like_app.R;
-import com.cepang97.uber_like_app.view.customer.CustomerMainActivity;
+import com.cepang97.uber_like_app.model.User;
+import com.cepang97.uberlikeapp.UberLikeAppClient;
+import com.cepang97.uberlikeapp.model.Input;
+import com.cepang97.uberlikeapp.model.Result;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.io.IOException;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+
 
 
 public class SignUpActivity extends AppCompatActivity {
@@ -46,8 +44,10 @@ public class SignUpActivity extends AppCompatActivity {
     String pwd_str;
 
     private FirebaseAuth mAuth;
-    OkHttpClient client;
+
     static String url = "https://yii4rgbzte.execute-api.us-west-2.amazonaws.com/production";
+    ApiClientFactory factory;
+    Thread thread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +62,7 @@ public class SignUpActivity extends AppCompatActivity {
         customer_cb = findViewById(R.id.customer_checkbox_in_signup);
         //Initialize FirebaseAuth.
         mAuth = FirebaseAuth.getInstance();
-        client = new OkHttpClient();
-
+        factory = new ApiClientFactory();
         //Only make user click employee's click box or customer's click box
         only_one_checkbox_checked(customer_cb, employee_cb);
 
@@ -186,30 +185,7 @@ public class SignUpActivity extends AppCompatActivity {
                             FirebaseUser user = mAuth.getCurrentUser();
                             String userId = user.getUid();
 
-                            RequestBody formBody = new FormBody.Builder()
-                                    .add("email", email)
-                                    .add("username", username)
-                                    .add("userId", userId)
-                                    .add("password", password)
-                                    .build();
 
-                            Request request = new Request.Builder().url(url + "/users").post(formBody).build();
-
-                            client.newCall(request).enqueue(new Callback() {
-                                @Override
-                                public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                                    Log.e("Hehe", e.getMessage());
-                                }
-
-                                @Override
-                                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                                    if(response.isSuccessful()){
-                                        Intent intent = new Intent(SignUpActivity.this, CustomerMainActivity.class);
-                                        startActivity(intent);
-                                        finish();
-                                    }
-                                }
-                            });
 
 
                         } else {
@@ -221,5 +197,32 @@ public class SignUpActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+
+    public void store_user(String userId, String email, String password, String username){
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                try {
+                    sleep(10);
+
+                    ApiClientFactory factory = new ApiClientFactory();
+                    final UberLikeAppClient client = factory.build(UberLikeAppClient.class);
+                    Input body = new Input();
+                    body.setEmail(email);
+                    body.setUserId(userId);
+                    body.setPassword(password);
+                    body.setUsername(username);
+
+                    Result output = client.usersPost(body);
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        };
+
     }
 }
