@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.cepang97.uber_like_app"
-        minSdk 21
+        minSdk 24
         targetSdk 32
         versionCode 1
         versionName "1.0"
@@ -30,11 +30,16 @@ android {
     buildFeatures {
         viewBinding true
     }
-
-
 }
 
 dependencies {
+    //AWS
+
+    implementation 'com.amazonaws:aws-android-sdk-core:2.16.11'
+    implementation 'com.amazonaws:aws-android-sdk-apigateway-core:2.16.11'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+
+
 
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.5.0'
@@ -46,11 +51,13 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     implementation 'com.amplifyframework:core:1.37.5'
     implementation 'com.amplifyframework:aws-auth-cognito:1.37.5'
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
+
+
+
 
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation fileTree(include: ['*.jar'], dir: 'app/libs')
-    implementation 'com.amazonaws:aws-android-sdk-core:2.16.11'
-    implementation 'com.amazonaws:aws-android-sdk-apigateway-core:2.16.11'
+
 }

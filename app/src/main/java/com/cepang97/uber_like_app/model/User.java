@@ -5,6 +5,23 @@ public class User {
     public String password;
     public String username;
     public String userId;
+    public String type;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public User(String email, String password, String username, String userId, String type){
+        this.email = email;
+        this.password = password;
+        this.username = username;
+        this.userId = userId;
+        this.type = type;
+    }
 
     public String getEmail() {
         return email;

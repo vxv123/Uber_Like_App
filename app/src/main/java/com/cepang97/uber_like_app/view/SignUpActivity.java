@@ -1,14 +1,10 @@
 package com.cepang97.uber_like_app.view;
 
 
-import static android.content.ContentValues.TAG;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-
 import android.content.Intent;
-import android.icu.util.Output;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,20 +14,20 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+
 import com.amazonaws.mobileconnectors.apigateway.ApiClientFactory;
-import com.amazonaws.mobileconnectors.apigateway.ApiRequest;
 import com.cepang97.uber_like_app.R;
+import com.cepang97.uber_like_app.model.OnEventListener;
 import com.cepang97.uber_like_app.model.User;
-import com.cepang97.uberlikeapp.UberLikeAppClient;
-import com.cepang97.uberlikeapp.model.Input;
-import com.cepang97.uberlikeapp.model.Result;
+import com.cepang97.uber_like_app.model.UserPostTaskAsync;
+
+import com.cepang97.uber_like_app.view.customer.CustomerMainActivity;
+import com.cepang97.uber_like_app.view.employee.EmployeeMainActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
-
 
 
 
@@ -43,12 +39,13 @@ public class SignUpActivity extends AppCompatActivity {
     String email_address_str;
     String username_str;
     String pwd_str;
-
+    String user_type;
+    public static final String TAG = "SignUpActivity";
+    public static final String SUCCESS = "user is successfully stored in database. Message send back from AWS Lambda.";
+    public static final String FAIL = "current email address is already been used. Message send back from AWS Lambda.";
     private FirebaseAuth mAuth;
 
-    static String url = "https://yii4rgbzte.execute-api.us-west-2.amazonaws.com/production";
-    ApiClientFactory factory;
-    Thread thread;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,23 +60,27 @@ public class SignUpActivity extends AppCompatActivity {
         customer_cb = findViewById(R.id.customer_checkbox_in_signup);
         //Initialize FirebaseAuth.
         mAuth = FirebaseAuth.getInstance();
-        factory = new ApiClientFactory();
+
         //Only make user click employee's click box or customer's click box
         only_one_checkbox_checked(customer_cb, employee_cb);
-
 
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(blank_content_checking(email_address, username, password, confirm_password, customer_cb, employee_cb)){
+                //blank_content_checking(email_address, username, password, confirm_password, customer_cb, employee_cb)
+                if(true){
                     email_address_str = email_address.getText().toString();
                     username_str = username.getText().toString();
                     pwd_str = password.getText().toString();
 
-
+                    email_address_str = "pcdota123@gmail.com";
+                    username_str = "pcdota123";
+                    pwd_str = "bewilder12345";
+                    user_type = get_checkbox_result(customer_cb, employee_cb);
                     //Create An account by Using AWS
-                    create_account(email_address_str, username_str, pwd_str);
+                    create_account(email_address_str, username_str, pwd_str, user_type);
 
+                    //create_account_in_aws(email_address_str, username_str, pwd_str);
                 }
             }
         });
@@ -174,7 +175,7 @@ public class SignUpActivity extends AppCompatActivity {
      * @param email email address as string
      * @param password password as string
      */
-    public void create_account(String email, String username, String password){
+    public void create_account(String email, String username, String password, String user_type){
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -187,47 +188,87 @@ public class SignUpActivity extends AppCompatActivity {
                             String userId = user.getUid();
 
                             //If the account is created successfully, store user data into AWS dynamoDB
-                            store_user(userId, email, password, username);
+                            User newUser = new User(userId, email, password, username, user_type);
+                            UserPostTaskAsync userPostTaskAsync = new UserPostTaskAsync(getApplicationContext(), new OnEventListener<String>() {
 
+                                @Override
+                                public void onSuccess(String s) {
+                                    if(s.equals(SUCCESS)){
+                                        //Goes to different pages based on user selected.
+                                        if(get_checkbox_result(employee_cb, customer_cb).equals("customer")){
+                                            Intent intent = new Intent(SignUpActivity.this, CustomerMainActivity.class);
+                                            startActivity(intent);
+                                            finish();
+                                        }
+                                        else {
+                                            Intent intent = new Intent(SignUpActivity.this, EmployeeMainActivity.class);
+                                            startActivity(intent);
+                                            finish();
+                                        }
+                                    }
+                                    else if(s.equals(FAIL)){
+                                        Toast.makeText(SignUpActivity.this, "Email Address is been used!",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                            userPostTaskAsync.execute(newUser);
 
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
                             Toast.makeText(SignUpActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-
                         }
                     }
                 });
     }
 
+    /**
 
-    public void store_user(String userId, String email, String password, String username){
-        Thread thread = new Thread(){
+    public void create_account_in_aws(String email, String username, String password){
+        Amplify.Auth.signUp(
+                "pcdota123@gmail.com",
+                "bewilder12345!@#",
+                AuthSignUpOptions.builder().userAttribute(
+                        AuthUserAttributeKey.email(),
+                        "pcdota123@gmail.com"
+                ).build(),
+                this::signupsuccess,
+                this::signupfail
+        );
+    }
+
+    private void signupsuccess(AuthSignUpResult result){
+        Log.d(TAG, "Sign Up Successful");
+        String username = result.getUser().getUsername();
+        String userId = result.getUser().getUserId();
+        User newUser = new User("pcdota123", "pcdota123", "pcdota123", "pcdota123");
+        UserPostTaskAsync userPostTaskAsync = new UserPostTaskAsync(getApplicationContext(), new OnEventListener<String>() {
+
             @Override
-            public void run() {
-                try {
-                    sleep(10);
-
-                    ApiClientFactory factory = new ApiClientFactory();
-                    final UberLikeAppClient client = factory.build(UberLikeAppClient.class);
-                    Input body = new Input();
-                    body.setEmail(email);
-                    body.setUserId(userId);
-                    body.setPassword(password);
-                    body.setUsername(username);
-
-                    Result output = client.usersPost(body);
-
-                    Log.d("SignUpActivity", output.toString());
-                    output.getOutput();
-
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            public void onSuccess(String s) {
+                Log.d(TAG, "Print Out: " + s);
             }
 
-        };
-
+            @Override
+            public void onFailure(Exception e) {
+                e.printStackTrace();
+            }
+        });
+        userPostTaskAsync.execute(newUser);
     }
+
+    private void signupfail(Exception e){
+        Log.d(TAG, e.getMessage());
+    }
+
+     **/
+
 }
+
