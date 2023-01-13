@@ -15,7 +15,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 
-import com.amazonaws.mobileconnectors.apigateway.ApiClientFactory;
 import com.cepang97.uber_like_app.R;
 import com.cepang97.uber_like_app.model.OnEventListener;
 import com.cepang97.uber_like_app.model.User;
@@ -67,15 +66,13 @@ public class SignUpActivity extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //blank_content_checking(email_address, username, password, confirm_password, customer_cb, employee_cb)
-                if(true){
+                //
+                if(blank_content_checking(email_address, username, password, confirm_password, customer_cb, employee_cb)){
                     email_address_str = email_address.getText().toString();
                     username_str = username.getText().toString();
                     pwd_str = password.getText().toString();
 
-                    email_address_str = "pcdota123@gmail.com";
-                    username_str = "pcdota123";
-                    pwd_str = "bewilder12345";
+
                     user_type = get_checkbox_result(customer_cb, employee_cb);
                     //Create An account by Using AWS
                     create_account(email_address_str, username_str, pwd_str, user_type);
@@ -188,23 +185,22 @@ public class SignUpActivity extends AppCompatActivity {
                             String userId = user.getUid();
 
                             //If the account is created successfully, store user data into AWS dynamoDB
-                            User newUser = new User(userId, email, password, username, user_type);
+                            User newUser = new User(email, password, username, userId, user_type);
                             UserPostTaskAsync userPostTaskAsync = new UserPostTaskAsync(getApplicationContext(), new OnEventListener<String>() {
 
                                 @Override
                                 public void onSuccess(String s) {
                                     if(s.equals(SUCCESS)){
                                         //Goes to different pages based on user selected.
-                                        if(get_checkbox_result(employee_cb, customer_cb).equals("customer")){
-                                            Intent intent = new Intent(SignUpActivity.this, CustomerMainActivity.class);
-                                            startActivity(intent);
-                                            finish();
+                                        Intent intent;
+                                        if(user_type.equals("customer")){
+                                            intent = new Intent(SignUpActivity.this, CustomerMainActivity.class);
                                         }
                                         else {
-                                            Intent intent = new Intent(SignUpActivity.this, EmployeeMainActivity.class);
-                                            startActivity(intent);
-                                            finish();
+                                            intent = new Intent(SignUpActivity.this, EmployeeMainActivity.class);
                                         }
+                                        startActivity(intent);
+                                        finish();
                                     }
                                     else if(s.equals(FAIL)){
                                         Toast.makeText(SignUpActivity.this, "Email Address is been used!",
@@ -228,47 +224,5 @@ public class SignUpActivity extends AppCompatActivity {
                     }
                 });
     }
-
-    /**
-
-    public void create_account_in_aws(String email, String username, String password){
-        Amplify.Auth.signUp(
-                "pcdota123@gmail.com",
-                "bewilder12345!@#",
-                AuthSignUpOptions.builder().userAttribute(
-                        AuthUserAttributeKey.email(),
-                        "pcdota123@gmail.com"
-                ).build(),
-                this::signupsuccess,
-                this::signupfail
-        );
-    }
-
-    private void signupsuccess(AuthSignUpResult result){
-        Log.d(TAG, "Sign Up Successful");
-        String username = result.getUser().getUsername();
-        String userId = result.getUser().getUserId();
-        User newUser = new User("pcdota123", "pcdota123", "pcdota123", "pcdota123");
-        UserPostTaskAsync userPostTaskAsync = new UserPostTaskAsync(getApplicationContext(), new OnEventListener<String>() {
-
-            @Override
-            public void onSuccess(String s) {
-                Log.d(TAG, "Print Out: " + s);
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                e.printStackTrace();
-            }
-        });
-        userPostTaskAsync.execute(newUser);
-    }
-
-    private void signupfail(Exception e){
-        Log.d(TAG, e.getMessage());
-    }
-
-     **/
-
 }
 

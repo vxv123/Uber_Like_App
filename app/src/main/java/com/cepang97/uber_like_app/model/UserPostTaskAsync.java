@@ -36,11 +36,11 @@ public class UserPostTaskAsync extends AsyncTask<User, Void, String> {
             String username = users[0].getUsername();
             String userType = users[0].getType();
             UserPostInput body = new UserPostInput();
-            body.setEmail("pcdota123@!");
-            body.setUserId("pcdota123@!");
-            body.setPassword("pcdota123@!");
-            body.setUsername("pcdota123@!");
-            body.setType("customer");
+            body.setEmail(email);
+            body.setUserId(userId);
+            body.setPassword(password);
+            body.setUsername(username);
+            body.setType(userType);
 
             UserPostOutput result = client.usersPost(body);
 
