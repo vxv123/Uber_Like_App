@@ -23,6 +23,12 @@ public class User {
         this.type = type;
     }
 
+    public User(String email, String password, String type){
+        this.email = email;
+        this.password = password;
+        this.type = type;
+    }
+
     public String getEmail() {
         return email;
     }

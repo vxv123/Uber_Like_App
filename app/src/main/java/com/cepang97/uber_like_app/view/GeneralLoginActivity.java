@@ -12,8 +12,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.cepang97.uber_like_app.R;
+import com.cepang97.uber_like_app.model.OnEventListener;
+import com.cepang97.uber_like_app.model.User;
+import com.cepang97.uber_like_app.model.UserGetTaskAsync;
 import com.cepang97.uber_like_app.view.customer.CustomerLoginActivity;
+import com.cepang97.uber_like_app.view.customer.CustomerMainActivity;
 import com.cepang97.uber_like_app.view.employee.EmployeeLoginActivity;
+import com.cepang97.uber_like_app.view.employee.EmployeeMainActivity;
 
 public class GeneralLoginActivity extends AppCompatActivity {
 
@@ -21,6 +26,11 @@ public class GeneralLoginActivity extends AppCompatActivity {
     CheckBox employee_cb, customer_cb;
     EditText email_address_et, password_et;
     String email_address_str, pwd_str, user_type;
+    public static final String TAG = "GeneralLoginActivity";
+    public static final String USER_TYPE_ERROR = "User's type is wrong!";
+    public static final String USER_PASSWORD_ERROR = "User's password is wrong!";
+    public static final String USER_LOGIN_SUCCESS = "Authentication success!";
+    public static final String USER_LOGIN_FAIL = "Authentication fail!";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +55,7 @@ public class GeneralLoginActivity extends AppCompatActivity {
 
                     user_type = get_checkbox_result(customer_cb, employee_cb);
 
-                    check_account(email_address_str, pwd_str, user_type);
+                    login_account(email_address_str, pwd_str, user_type);
 
                 }
             }
@@ -53,8 +63,48 @@ public class GeneralLoginActivity extends AppCompatActivity {
 
     }
 
-    public boolean check_account(String email, String password, String user_type){
-        return true;
+    public void login_account(String email, String password, String user_type){
+        User user = new User(email, password, user_type);
+        UserGetTaskAsync userGetTaskAsync = new UserGetTaskAsync(getApplicationContext(), new OnEventListener<String>() {
+
+            @Override
+            public void onSuccess(String s) {
+                if(s.equals(USER_LOGIN_SUCCESS)){
+                    Intent intent;
+                    if(user_type.equals("customer")){
+                        intent = new Intent(GeneralLoginActivity.this, CustomerMainActivity.class);
+                    }
+                    else {
+                        intent = new Intent(GeneralLoginActivity.this, EmployeeMainActivity.class);
+                    }
+                    startActivity(intent);
+                    finish();
+                }
+                else if(s.equals(USER_LOGIN_FAIL)){
+                    Toast.makeText(GeneralLoginActivity.this, "User Login Fails!",
+                            Toast.LENGTH_SHORT).show();
+                }
+                else if(s.equals(USER_PASSWORD_ERROR)){
+                    Toast.makeText(GeneralLoginActivity.this, "Password is wrong!",
+                            Toast.LENGTH_SHORT).show();
+                }
+                else if(s.equals(USER_TYPE_ERROR)){
+                    Toast.makeText(GeneralLoginActivity.this, "User's Type is wrong!",
+                            Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(GeneralLoginActivity.this, "Something Wrong!",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                e.printStackTrace();
+            }
+        });
+        userGetTaskAsync.execute(user);
+
     }
 
 
